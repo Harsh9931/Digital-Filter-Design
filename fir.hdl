@@ -1,0 +1,69 @@
+module fir_filter ( 
+    input wire clk,                   // Clock signal 
+    input wire rst,                   // Reset signal 
+    input wire signed [7:0] x_in,      // Input signal (8-bit signed) 
+    output reg signed [15:0] y_out     // Filtered output (16-bit signed) 
+); 
+     
+    parameter N = 4;  // Number of filter taps (adjustable) 
+     
+    // FIR Filter Coefficients (Example values) 
+    reg signed [7:0] coeff [0:N-1] = '{8'd2, 8'd3, 8'd1, 8'd4}; 
+ 
+    // Delay Line (Shift Register) 
+    reg signed [7:0] delay_line [0:N-1]; 
+ 
+    integer i; 
+     
+    always @(posedge clk or posedge rst) begin 
+        if (rst) begin 
+            // Reset delay line and output 
+            for (i = 0; i < N; i = i + 1) 
+                delay_line[i] <= 0; 
+            y_out <= 0; 
+        end else begin 
+            // Shift delay line 
+            for (i = N-1; i > 0; i = i - 1) 
+                delay_line[i] <= delay_line[i-1]; 
+            delay_line[0] <= x_in; 
+ 
+            // Compute weighted summation 
+            y_out <= 0; 
+            for (i = 0; i < N; i = i + 1) 
+                y_out <= y_out + (delay_line[i] * coeff[i]); 
+        end 
+    end 
+endmodule 
+Testbench Code: 
+module tb_fir_filter; 
+    reg clk; 
+    reg rst; 
+    reg signed [7:0] x_in; 
+    wire signed [15:0] y_out; 
+ 
+    // Instantiate the FIR filter module 
+    fir_filter uut ( 
+        .clk(clk), 
+.rst(rst), 
+.x_in(x_in), 
+.y_out(y_out) 
+); 
+// Clock generation 
+always #5 clk = ~clk; 
+initial begin 
+// Initialize inputs 
+clk = 0; 
+rst = 1; 
+x_in = 0; 
+#10 rst = 0; // Release reset 
+// Apply test inputs 
+#10 x_in = 8'd5; 
+#10 x_in = 8'd3; 
+#10 x_in = 8'd8; 
+#10 x_in = 8'd2; 
+#10 x_in = 8'd4; 
+#10 x_in = 8'd1; 
+#10 x_in = 8'd0; 
+#50 $stop; 
+end 
+endmodule 
