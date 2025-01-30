@@ -33,4 +33,4 @@ Verilog-Based Implementation Approach:
    Filtering Response: Upon receiving an input sequence, the filter applies its predefined impulse response, producing an output that closely follows the expected theoretical results.
    Time-Domain Verification: The simulation results confirm the correctness of the filtering operation, demonstrating that the output represents a weighted sum of recent inputs as dictated by the FIR coefficients.
 
-  
+  ![Image](https://github.com/user-attachments/assets/ec634183-fbaf-45ef-97b3-63ca91e6810a)
